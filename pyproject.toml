@@ -1,0 +1,14 @@
+[project]
+name = "social"
+version = "0.1.0"
+description = "Social media backend API"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi",
+    "sqlalchemy",
+    "asyncpg",
+    "python-jose[cryptography]",
+    "passlib[bcrypt]",
+    "uvicorn",
+    "pydantic",
+]
