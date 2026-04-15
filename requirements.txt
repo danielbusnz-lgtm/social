@@ -1,7 +1,0 @@
-fastapi
-sqlalchemy
-asyncpg
-python-jose[cryptography]
-passlib[bcrypt]
-uvicorn
-pydantic
