@@ -11,4 +11,13 @@ dependencies = [
     "passlib[bcrypt]",
     "uvicorn",
     "pydantic",
+    "bcrypt==4.0.1",
+]
+
+[dependency-groups]
+dev = [
+    "aiosqlite>=0.22.1",
+    "httpx>=0.28.1",
+    "pytest>=9.0.3",
+    "pytest-asyncio>=1.3.0",
 ]

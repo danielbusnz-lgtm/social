@@ -11,17 +11,27 @@ router = APIRouter()
 
 @router.post("/register")
 async def register_user(user: UserRegister, db=Depends(get_db)):
-    find_user = await db.execute(select(User).where(User.email_address == user.email))
-    if find_user.scalar():
+    find_user_email = await db.execute(select(User).where(User.email_address == user.email))
+    if find_user_email.scalar():
         raise HTTPException(status_code=400, detail="User already exists")
+
+    find_username = await db.execute(select(User).where(User.username == user.username))
+    if find_username.scalar():
+        raise HTTPException(status_code= 400, detail= " Username Already Taken")
+
 
     new_user = User(
         username=user.username,
         email_address=user.email,
         hashed_password=hash_password(user.password),
     )
-    db.add(new_user)
-    await db.commit()
+    try:
+
+        db.add(new_user)
+        await db.commit()
+    except Exception:
+        await db.rollback()
+        raise HTTPException(status_code = 400, detail = "USername or Email Already Taken")
     return {"message": "User registered"}
 
 
