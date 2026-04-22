@@ -9,7 +9,7 @@ from app.models import Post, Follow
 router = APIRouter()
 
 
-@router.post("/post")
+@router.post("/posts")
 async def create_post(post: PostCreate, db=Depends(get_db), current_user=Depends(get_current_user)):
 
 
