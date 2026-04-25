@@ -9,6 +9,8 @@ type Post = {
     content: string
     username: string
     created_at: string
+    like_count: number
+    liked_by_me: boolean
 }
 
 function timeAgo(iso: string) {
@@ -21,6 +23,53 @@ function timeAgo(iso: string) {
     if (hr < 24) return `${hr}h ago`
     const day = Math.floor(hr / 24)
     return `${day}d ago`
+}
+
+function LikeButton({
+    post,
+    onChange,
+}: {
+    post: Post
+    onChange: (next: { like_count: number; liked_by_me: boolean }) => void
+}) {
+    const [pending, setPending] = useState(false)
+
+    const handleClick = async () => {
+        if (pending) return
+        const previous = { like_count: post.like_count, liked_by_me: post.liked_by_me }
+        const next = {
+            like_count: post.like_count + (post.liked_by_me ? -1 : 1),
+            liked_by_me: !post.liked_by_me,
+        }
+        onChange(next)
+        setPending(true)
+        try {
+            const token = localStorage.getItem('token')
+            const method = post.liked_by_me ? 'DELETE' : 'POST'
+            const r = await fetch(`${API_URL}/posts/${post.id}/like`, {
+                method,
+                headers: { Authorization: `Bearer ${token}` },
+            })
+            if (!r.ok) throw new Error(`like ${r.status}`)
+        } catch {
+            onChange(previous)
+        } finally {
+            setPending(false)
+        }
+    }
+
+    return (
+        <button
+            type="button"
+            onClick={handleClick}
+            disabled={pending}
+            aria-pressed={post.liked_by_me}
+            className="mt-2 inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-pink-500 disabled:opacity-50"
+        >
+            <span>{post.liked_by_me ? '♥' : '♡'}</span>
+            <span>{post.like_count}</span>
+        </button>
+    )
 }
 
 export function Feed({ refreshKey }: { refreshKey: number }) {
@@ -41,6 +90,10 @@ export function Feed({ refreshKey }: { refreshKey: number }) {
             .catch((e) => setError(e.message))
     }, [refreshKey])
 
+    const updatePost = (id: number, next: { like_count: number; liked_by_me: boolean }) => {
+        setPosts((current) => current?.map((p) => (p.id === id ? { ...p, ...next } : p)) ?? null)
+    }
+
     if (error) return <Text>Failed to load feed: {error}</Text>
     if (posts === null) return <Text>Loading…</Text>
     if (posts.length === 0) return <Text>No posts yet. Follow someone or write the first one.</Text>
@@ -55,6 +108,7 @@ export function Feed({ refreshKey }: { refreshKey: number }) {
                         <Text className="text-xs">{timeAgo(post.created_at)}</Text>
                     </div>
                     <Text className="mt-1 whitespace-pre-wrap">{post.content}</Text>
+                    <LikeButton post={post} onChange={(next) => updatePost(post.id, next)} />
                 </div>
             ))}
         </div>
