@@ -35,6 +35,14 @@ async def get_user(username: str, db=Depends(get_db), current_user=Depends(get_c
     )
     following_count = following_count_result.scalar_one()
 
+    follow_check = await db.execute(
+            select(func.count()).select_from(Follow).where(
+                Follow.follower_id == current_user.id,
+                Follow.following_id == user.id,
+                )
+            )
+    is_followed_by_me = follow_check.scalar_one() > 0 
+
     return {
         "id": user.id,
         "username": user.username,
@@ -42,6 +50,7 @@ async def get_user(username: str, db=Depends(get_db), current_user=Depends(get_c
         "post_count": post_count,
         "follower_count": follower_count,
         "following_count": following_count,
+        "is_followed_by_me": is_followed_by_me,
     }
         
 
