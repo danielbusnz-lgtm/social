@@ -3,10 +3,51 @@ from sqlalchemy import select, func
 from app.schemas import UserLogin, UserRegister
 from app.database import get_db
 from app.auth import create_token, hash_password, verify_password, get_current_user
-from app.models import User, Post
+from app.models import User, Post, Follow
 
 
 router = APIRouter()
+
+
+
+
+
+
+@router.get("/users/{username}")
+async def get_user(username: str, db=Depends(get_db), current_user=Depends(get_current_user)):
+    result = await db.execute(select(User).where(User.username == username))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    post_count_result = await db.execute(
+        select(func.count()).select_from(Post).where(Post.author_id == user.id)
+    )
+    post_count = post_count_result.scalar_one()
+
+    follower_count_result = await db.execute(
+        select(func.count()).select_from(Follow).where(Follow.following_id == user.id)
+    )
+    follower_count = follower_count_result.scalar_one()
+
+    following_count_result = await db.execute(
+        select(func.count()).select_from(Follow).where(Follow.follower_id == user.id)
+    )
+    following_count = following_count_result.scalar_one()
+
+    return {
+        "id": user.id,
+        "username": user.username,
+        "created_at": user.created_at,
+        "post_count": post_count,
+        "follower_count": follower_count,
+        "following_count": following_count,
+    }
+        
+
+
+
+
 
 
 @router.get("/me")
