@@ -1,12 +1,14 @@
 import os
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from app.database import engine
 from app.models import Base
-from app.routes.users import router as users_router
-from app.routes.posts import router as posts_router
 from app.routes.follows import router as follows_router
+from app.routes.posts import router as posts_router
+from app.routes.users import router as users_router
 
 
 @asynccontextmanager
@@ -34,6 +36,3 @@ app.add_middleware(
 app.include_router(users_router)
 app.include_router(posts_router)
 app.include_router(follows_router)
-
-
-
