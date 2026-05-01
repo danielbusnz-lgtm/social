@@ -12,10 +12,7 @@ router = APIRouter()
 
 def _post_query(current_user_id: int):
     like_count = (
-        select(func.count(Like.id))
-        .where(Like.post_id == Post.id)
-        .correlate(Post)
-        .scalar_subquery()
+        select(func.count(Like.id)).where(Like.post_id == Post.id).correlate(Post).scalar_subquery()
     )
     liked_by_me = exists(
         select(1).where(Like.post_id == Post.id, Like.user_id == current_user_id)
@@ -29,9 +26,7 @@ def _post_query(current_user_id: int):
 
 
 @router.get("/users/{username}/posts", response_model=list[PostResponse])
-async def user_posts(
-    username: str, db=Depends(get_db), current_user=Depends(get_current_user)
-):
+async def user_posts(username: str, db=Depends(get_db), current_user=Depends(get_current_user)):
     result = await db.execute(select(User).where(User.username == username))
     user = result.scalar_one_or_none()
     if not user:
@@ -56,9 +51,7 @@ async def user_posts(
 
 
 @router.post("/posts")
-async def create_post(
-    post: PostCreate, db=Depends(get_db), current_user=Depends(get_current_user)
-):
+async def create_post(post: PostCreate, db=Depends(get_db), current_user=Depends(get_current_user)):
 
     new_post = Post(
         author_id=current_user.id,
@@ -118,9 +111,7 @@ async def show_feed(db=Depends(get_db), current_user=Depends(get_current_user)):
 
 
 @router.post("/posts/{post_id}/like", status_code=204)
-async def like_post(
-    post_id: int, db=Depends(get_db), current_user=Depends(get_current_user)
-):
+async def like_post(post_id: int, db=Depends(get_db), current_user=Depends(get_current_user)):
     post = await db.get(Post, post_id)
     if post is None:
         raise HTTPException(status_code=404, detail="Post not found")
@@ -135,10 +126,6 @@ async def like_post(
 
 
 @router.delete("/posts/{post_id}/like", status_code=204)
-async def unlike_post(
-    post_id: int, db=Depends(get_db), current_user=Depends(get_current_user)
-):
-    await db.execute(
-        delete(Like).where(Like.user_id == current_user.id, Like.post_id == post_id)
-    )
+async def unlike_post(post_id: int, db=Depends(get_db), current_user=Depends(get_current_user)):
+    await db.execute(delete(Like).where(Like.user_id == current_user.id, Like.post_id == post_id))
     await db.commit()

@@ -26,8 +26,7 @@ def verify_password(password: str, hash_password):
 def create_token(user_id):
     data = {
         "sub": str(user_id),
-        "exp": datetime.now(timezone.utc)
-        + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
     }
     token = jwt.encode(data, JWT_SECRET, algorithm=JWT_ALGORITHM)
     return token

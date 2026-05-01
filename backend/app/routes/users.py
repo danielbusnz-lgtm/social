@@ -10,9 +10,7 @@ router = APIRouter()
 
 
 @router.get("/users/{username}")
-async def get_user(
-    username: str, db=Depends(get_db), current_user=Depends(get_current_user)
-):
+async def get_user(username: str, db=Depends(get_db), current_user=Depends(get_current_user)):
     result = await db.execute(select(User).where(User.username == username))
     user = result.scalar_one_or_none()
     if not user:
@@ -71,9 +69,7 @@ async def get_me(db=Depends(get_db), current_user=Depends(get_current_user)):
 
 @router.post("/register")
 async def register_user(user: UserRegister, db=Depends(get_db)):
-    find_user_email = await db.execute(
-        select(User).where(User.email_address == user.email)
-    )
+    find_user_email = await db.execute(select(User).where(User.email_address == user.email))
     if find_user_email.scalar():
         raise HTTPException(status_code=400, detail="User already exists")
 
@@ -87,7 +83,6 @@ async def register_user(user: UserRegister, db=Depends(get_db)):
         hashed_password=hash_password(user.password),
     )
     try:
-
         db.add(new_user)
         await db.commit()
         await db.refresh(new_user)
