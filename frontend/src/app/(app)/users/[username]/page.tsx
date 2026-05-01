@@ -1,6 +1,6 @@
 'use client'
 import { apiFetch } from '@/lib/api'
-import { useEffect, useState } from 'react'
+import { use, useEffect, useState } from 'react'
 
 type User = {
     id: number
@@ -12,14 +12,15 @@ type User = {
     is_followed_by_me: boolean
 }
 
-export default function UserProfilePage({ params }: { params: { username: string } }) {
+export default function UserProfilePage({ params }: { params: Promise<{ username: string }> }) {
+    const { username } = use(params)
     const [user, setUser] = useState<User | null>(null)
 
     useEffect(() => {
-        apiFetch(`/users/${params.username}`)
+        apiFetch(`/users/${username}`)
             .then((r) => r.json())
             .then((data) => setUser(data))
-    }, [])
+    }, [username])
 
     if (user === null) return <div>Loading…</div>
 
