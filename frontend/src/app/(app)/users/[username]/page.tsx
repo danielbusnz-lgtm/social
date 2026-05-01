@@ -4,6 +4,7 @@ import { use, useEffect, useState } from 'react'
 import { Heading, Subheading } from '@/components/heading'
 import { Text, Strong } from '@/components/text'
 import { Divider } from '@/components/divider'
+import { FollowButton } from '@/components/follow-button'
 
 function timeAgo(iso: string) {
     const diffMs = Date.now() - new Date(iso).getTime()
@@ -61,7 +62,14 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
     return (
         <div className="mx-auto flex w-full max-w-xl flex-col gap-8 p-8">
             <div>
-                <Heading>@{user.username}</Heading>
+                <div className="flex items-center justify-between gap-4">
+                    <Heading>@{user.username}</Heading>
+                    <FollowButton
+                        userId={user.id}
+                        isFollowing={user.is_followed_by_me}
+                        onChange={(next) => setUser({ ...user, is_followed_by_me: next })}
+                    />
+                </div>
                 <Text className="mt-1">
                     Joined {joined} · {user.post_count} post
                     {user.post_count === 1 ? '' : 's'}
