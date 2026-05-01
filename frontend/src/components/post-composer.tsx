@@ -31,7 +31,7 @@ export function PostComposer({ onPosted }: { onPosted?: () => void }) {
     return (
         <form onSubmit={handleSubmit} className="grid w-full max-w-xl grid-cols-1 gap-4">
             <Field>
-                <Label>What's on your mind?</Label>
+                <Label>What&apos;s on your mind?</Label>
                 <Textarea
                     name="content"
                     value={content}

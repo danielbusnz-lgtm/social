@@ -11,6 +11,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
         if (!token) {
             router.replace('/login')
         } else {
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage is only available client-side
             setReady(true)
         }
     }, [router])
